@@ -2,12 +2,16 @@ package com.example.bitcoin.exchange.entity.currentprice;
 
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Currency {
 
     private String code;
     private String rate;
     private String description;
-    private BigDecimal rate_float;
+
+    @JsonProperty("rate_float")
+    private BigDecimal rateFloat;
 
     public String getCode() {
         return code;
@@ -33,18 +37,18 @@ public class Currency {
         this.description = description;
     }
 
-    public BigDecimal getRate_float() {
-        return rate_float;
+    public BigDecimal getRateFloat() {
+        return rateFloat;
     }
 
-    public void setRate_float(BigDecimal rate_float) {
-        this.rate_float = rate_float;
+    public void setRateFloat(BigDecimal rateFloat) {
+        this.rateFloat = rateFloat;
     }
 
     @Override
     public String toString() {
-        return "Currency [code=" + code + ", description=" + description + ", rate=" + rate + ", rate_float="
-                + rate_float + "]";
+        return "Currency [code=" + code + ", description=" + description + ", rate=" + rate + ", rateFloat=" + rateFloat
+                + "]";
     }
 
 }
