@@ -4,15 +4,12 @@ import static java.util.Objects.nonNull;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Arrays;
 import java.util.Optional;
 
 import com.example.bitcoin.exchange.entity.currentprice.CurrentPrice;
 import com.example.bitcoin.exchange.service.CoinDeskService;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
