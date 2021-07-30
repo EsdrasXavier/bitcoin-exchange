@@ -43,9 +43,16 @@ public class BitcoinPriceRange {
 
     @Override
     public String toString() {
-        return "BitcoinPriceRange [currency=" + currency + ", currentPrice=" + currentPrice
-                + ", highestPriceInTheLastThirtyDays=" + highestPriceInTheLastThirtyDays
-                + ", lowestPriceInTheLastThirtyDays=" + lowestPriceInTheLastThirtyDays + "]";
+        StringBuilder builder = new StringBuilder();
+        builder.append("The price range fot the currency ");
+        builder.append(this.getCurrency());
+        builder.append(" is:");
+        builder.append("\n\tCurrentPrice: ").append(this.getCurrentPrice());
+        builder.append("\n\tHighest Price In The Last Thirty Days: ");
+        builder.append(this.getHighestPriceInTheLastThirtyDays());
+        builder.append("\n\tLowest Price In The Last Thirty Days: ");
+        builder.append(this.getLowestPriceInTheLastThirtyDays());
+        return builder.toString();
     }
 
 }

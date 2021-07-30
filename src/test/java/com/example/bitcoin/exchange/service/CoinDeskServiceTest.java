@@ -17,10 +17,12 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.event.annotation.AfterTestClass;
 import org.springframework.test.context.event.annotation.BeforeTestClass;
 
 @SpringBootTest
+@ActiveProfiles("test")
 public class CoinDeskServiceTest {
 
     private static WireMockServer wireMockServer = new WireMockServer();
