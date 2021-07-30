@@ -20,3 +20,12 @@ mvn spring-boot:run
 ## Documentation
 
 After running the application you can check the docs at the following URL: _http://localhost:8080/api/docs.html_
+
+## Running it from Docker
+
+You can run this project using docker. The project has been published in the DockerHub, you can find the repository [here](https://hub.docker.com/repository/docker/esdrasxavier/bitcoin-exchange).
+
+To run it from terminal execute:
+```shell
+docker run -it -p 8080:8080 esdrasxavier/bitcoin-exchange
+```
