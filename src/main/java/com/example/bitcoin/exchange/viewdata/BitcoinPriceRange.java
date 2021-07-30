@@ -1,4 +1,4 @@
-package com.example.bitcoin.viewdata;
+package com.example.bitcoin.exchange.viewdata;
 
 import java.math.BigDecimal;
 

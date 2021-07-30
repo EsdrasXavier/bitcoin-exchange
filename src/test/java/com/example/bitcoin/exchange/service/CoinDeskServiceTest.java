@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 
-import com.example.bitcoin.viewdata.BitcoinPriceRange;
+import com.example.bitcoin.exchange.viewdata.BitcoinPriceRange;
 import com.github.tomakehurst.wiremock.WireMockServer;
 
 import org.junit.jupiter.api.Test;

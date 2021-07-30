@@ -12,7 +12,7 @@ import com.example.bitcoin.exchange.entity.currentprice.CurrentPrice;
 import com.example.bitcoin.exchange.entity.historicalprice.HistoricalPrice;
 import com.example.bitcoin.exchange.service.CoinDeskService;
 import com.example.bitcoin.exchange.utils.DateUtils;
-import com.example.bitcoin.viewdata.BitcoinPriceRange;
+import com.example.bitcoin.exchange.viewdata.BitcoinPriceRange;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;

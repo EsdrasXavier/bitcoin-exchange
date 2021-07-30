@@ -3,7 +3,7 @@ package com.example.bitcoin.exchange.service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import com.example.bitcoin.viewdata.BitcoinPriceRange;
+import com.example.bitcoin.exchange.viewdata.BitcoinPriceRange;
 
 public interface CoinDeskService {
 
