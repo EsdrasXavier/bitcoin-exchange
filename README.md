@@ -1,4 +1,4 @@
-# Bitcoin Rate finder
+# Bitcoin Rate Converter
 
 ## Requirements
 
