@@ -73,6 +73,28 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+				<version>3.13.0</version>
+				<executions>
+					<execution>
+						<phase>compile</phase>
+						<goals>
+							<goal>check</goal>
+							<goal>cpd-check</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<targetJdk>${java.version}</targetJdk>
+					<skip>${skip.incompatible.java.plugins}</skip>
+					<rulesets>
+						<ruleset>./.mvn/pmd/maven-pmd-plugin-default.xml</ruleset>
+						<ruleset>./.mvn/pmd/custom.xml</ruleset>
+					</rulesets>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
