@@ -5,11 +5,13 @@ import static java.util.Objects.nonNull;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.Optional;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import com.example.bitcoin.exchange.entity.currentprice.CurrentPrice;
 import com.example.bitcoin.exchange.entity.historicalprice.HistoricalPrice;
+import com.example.bitcoin.exchange.exception.CurrencyNotAvailableException;
+import com.example.bitcoin.exchange.exception.HistoryNotAvailableException;
 import com.example.bitcoin.exchange.service.CoinDeskService;
 import com.example.bitcoin.exchange.utils.DateUtils;
 import com.example.bitcoin.exchange.viewdata.BitcoinPriceRange;
@@ -20,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @Service
@@ -32,7 +35,7 @@ public class CoinDeskServiceImpl implements CoinDeskService {
     private static final String COIN_DESK_BASE_URL = "https://api.coindesk.com/v1/bpi";
 
     @Override
-    public BigDecimal getCurrentBitcoinRateInCurrency(String currency) {
+    public BigDecimal getCurrentBitcoinRateInCurrency(String currency) throws CurrencyNotAvailableException {
         if (StringUtils.isBlank(currency))
             throw new IllegalArgumentException("The currency should not be blank!");
         currency = currency.toUpperCase();
@@ -40,15 +43,14 @@ public class CoinDeskServiceImpl implements CoinDeskService {
     }
 
     @Override
-    public BitcoinPriceRange getBitcoinPriceRangeForCurrency(String currency, LocalDate beginDate) throws Exception {
-        Optional<HistoricalPrice> historicalPrice = getHistoricalPriceRate(currency, beginDate);
-        if (historicalPrice.isEmpty())
-            throw new Exception("Could not find any history for the given currency.");
-        return populateBitcoinPriceRangeUsingAPIResponse(historicalPrice.get(), currency);
+    public BitcoinPriceRange getBitcoinPriceRangeForCurrency(String currency, LocalDate beginDate)
+            throws CurrencyNotAvailableException, HistoryNotAvailableException {
+        HistoricalPrice historicalPrice = findHistoricalPrice(currency, beginDate);
+        return populateBitcoinPriceRangeUsingAPIResponse(historicalPrice, currency);
     }
 
     private BitcoinPriceRange populateBitcoinPriceRangeUsingAPIResponse(HistoricalPrice historicalPrice,
-            String currency) {
+            String currency) throws CurrencyNotAvailableException {
         BitcoinPriceRange result = new BitcoinPriceRange();
         result.setCurrency(currency);
         result.setCurrentPrice(getCurrentBitcoinRateInCurrency(currency));
@@ -68,26 +70,32 @@ public class CoinDeskServiceImpl implements CoinDeskService {
         return result;
     }
 
-    private BigDecimal findAndConvertCurrentBitcoinPriceToCurrency(String currency) {
-        Optional<CurrentPrice> optionalBitcoinPrice = getCurrentBitcoinRate();
-
-        if (optionalBitcoinPrice.isPresent()) {
-            BigDecimal bitcoinUsdPrice = optionalBitcoinPrice.get().getCurrencyPrice(DOLLAR_SHORT);
-            BigDecimal currencyPriceInDollar = getCurrencyPriceInDollar(currency);
-            return bitcoinUsdPrice.divide(currencyPriceInDollar, RoundingMode.HALF_UP);
-        }
-
-        return BigDecimal.ZERO;
+    private BigDecimal findAndConvertCurrentBitcoinPriceToCurrency(String currency)
+            throws CurrencyNotAvailableException {
+        CurrentPrice bitcoinPrice = findCurrentCurrencyRate(BITCOIN_SHORT);
+        BigDecimal bitcoinUsdPrice = bitcoinPrice.getCurrencyPrice(DOLLAR_SHORT);
+        BigDecimal currencyPriceInDollar = getCurrencyPriceInDollar(currency);
+        return bitcoinUsdPrice.divide(currencyPriceInDollar, RoundingMode.HALF_UP);
     }
 
-    private BigDecimal getCurrencyPriceInDollar(String currency) {
-        Optional<CurrentPrice> optionalCurrencyPrice = getCurrencyRate(currency);
-        if (optionalCurrencyPrice.isEmpty())
-            return BigDecimal.ONE;
+    private BigDecimal getCurrencyPriceInDollar(String currency) throws CurrencyNotAvailableException {
+        CurrentPrice currencyPrice = findCurrentCurrencyRate(currency);
+        BigDecimal currencyUsdPrice = currencyPrice.getCurrencyPrice(DOLLAR_SHORT);
+        BigDecimal currencyCurrentPrice = currencyPrice.getCurrencyPrice(currency);
+        return currencyUsdPrice.divide(currencyCurrentPrice, RoundingMode.HALF_UP);
+    }
 
-        BigDecimal currencyUsdPrice = optionalCurrencyPrice.get().getCurrencyPrice(DOLLAR_SHORT);
-        BigDecimal currencyPrice = optionalCurrencyPrice.get().getCurrencyPrice(currency);
-        return currencyUsdPrice.divide(currencyPrice, RoundingMode.HALF_UP);
+    private HistoricalPrice findHistoricalPrice(String currency, LocalDate beginDate)
+            throws CurrencyNotAvailableException, HistoryNotAvailableException {
+        try {
+            Optional<HistoricalPrice> historicalPrice = getHistoricalPriceRate(currency, beginDate);
+            if (historicalPrice.isPresent())
+                return historicalPrice.get();
+            throw new HistoryNotAvailableException("Could not find any history for the given currency.");
+        } catch (HttpClientErrorException clientErrorException) {
+            throw new CurrencyNotAvailableException(clientErrorException.getResponseBodyAsString(),
+                    clientErrorException);
+        }
     }
 
     private Optional<HistoricalPrice> getHistoricalPriceRate(String currency, LocalDate beginDate) {
@@ -112,6 +120,18 @@ public class CoinDeskServiceImpl implements CoinDeskService {
         return builder.toString();
     }
 
+    private CurrentPrice findCurrentCurrencyRate(String currency) throws CurrencyNotAvailableException {
+        try {
+            Optional<CurrentPrice> optionalCurrencyPrice = getCurrencyRate(currency);
+            if (optionalCurrencyPrice.isPresent())
+                return optionalCurrencyPrice.get();
+            throw new CurrencyNotAvailableException("Could not find any rate for the given currency.");
+        } catch (HttpClientErrorException clientErrorException) {
+            throw new CurrencyNotAvailableException(clientErrorException.getResponseBodyAsString(),
+                    clientErrorException);
+        }
+    }
+
     private Optional<CurrentPrice> getCurrencyRate(String currency) {
         RestTemplate restTemplate = createRestTemplateWithInterceptors();
 
@@ -122,10 +142,6 @@ public class CoinDeskServiceImpl implements CoinDeskService {
 
         }
         return Optional.empty();
-    }
-
-    private Optional<CurrentPrice> getCurrentBitcoinRate() {
-        return getCurrencyRate(BITCOIN_SHORT);
     }
 
     private String generateUrlForCurrentPrice(String currency) {

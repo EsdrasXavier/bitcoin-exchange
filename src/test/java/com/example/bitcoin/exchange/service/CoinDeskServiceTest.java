@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 
+import com.example.bitcoin.exchange.exception.CurrencyNotAvailableException;
 import com.example.bitcoin.exchange.viewdata.BitcoinPriceRange;
 import com.github.tomakehurst.wiremock.WireMockServer;
 
@@ -51,7 +52,7 @@ public class CoinDeskServiceTest {
     }
 
     @Test
-    public void assertThatCurrentPriceIsReturned() {
+    public void assertThatCurrentPriceIsReturned() throws CurrencyNotAvailableException {
         BigDecimal expected = new BigDecimal(33713.5569).setScale(4, RoundingMode.HALF_UP);
         BigDecimal result = coinDeskService.getCurrentBitcoinRateInCurrency("EUR");
         assertEquals(expected, result);
