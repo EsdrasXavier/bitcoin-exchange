@@ -1,4 +1,4 @@
-# Bitcoin Rate Converter
+# Bitcoin Rate Converter CLI
 
 ## Requirements
 
