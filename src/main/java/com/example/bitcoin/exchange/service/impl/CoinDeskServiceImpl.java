@@ -54,7 +54,12 @@ public class CoinDeskServiceImpl implements CoinDeskService {
         BitcoinPriceRange result = new BitcoinPriceRange();
         result.setCurrency(currency);
         result.setCurrentPrice(getCurrentBitcoinRateInCurrency(currency));
+        findAndSetTheHighestAndLowestPriceInTheLastThirtyDays(historicalPrice, result);
+        return result;
+    }
 
+    private void findAndSetTheHighestAndLowestPriceInTheLastThirtyDays(HistoricalPrice historicalPrice,
+            BitcoinPriceRange result) {
         Double high = Double.NEGATIVE_INFINITY;
         Double low = Double.POSITIVE_INFINITY;
         for (Entry<LocalDate, Double> entry : historicalPrice.getBpi().entrySet()) {
@@ -66,8 +71,6 @@ public class CoinDeskServiceImpl implements CoinDeskService {
 
         result.setHighestPriceInTheLastThirtyDays(BigDecimal.valueOf(high));
         result.setLowestPriceInTheLastThirtyDays(BigDecimal.valueOf(low));
-
-        return result;
     }
 
     private BigDecimal findAndConvertCurrentBitcoinPriceToCurrency(String currency)
