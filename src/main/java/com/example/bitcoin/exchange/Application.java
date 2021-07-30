@@ -1,5 +1,7 @@
 package com.example.bitcoin.exchange;
 
+import java.time.LocalDate;
+
 import com.example.bitcoin.exchange.service.CoinDeskService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +21,11 @@ public class Application {
 
 	@Bean
 	public void test() {
-		System.out.println("Result: " + coinDeskService.getCurrentBitcoinRateInCurrency("EUR"));
+		try {
+			System.out.println("Result: " + coinDeskService.getBitcoinPriceRangeForCurrency("EUR", LocalDate.now()));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }

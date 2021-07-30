@@ -3,6 +3,7 @@ package com.example.bitcoin.exchange.entity.currentprice;
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 
 public class Time {
@@ -13,6 +14,7 @@ public class Time {
     @JsonFormat(shape = Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss+00:00")
     private LocalDateTime updatedISO;
 
+    @JsonProperty(required = false)
     @JsonFormat(shape = Shape.STRING, pattern = "MMM d, yyyy 'at' HH:mm z")
     private LocalDateTime updateduk;
 
